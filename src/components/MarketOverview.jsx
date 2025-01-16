@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDex } from "../context/dexContext";
 
 const MarketOverview = () => {
   const [data, setData] = useState(null);
@@ -7,17 +8,18 @@ const MarketOverview = () => {
   const [totalValueLocked, setTotalValueLocked] = useState(5000);
   const [activeUsers, setActiveUsers] = useState(null);
   const [totalTransactions, setTotalTransactions] = useState(null);
+  const { dexesData, dex, setDex } = useDex();
 
   // Fetch data from API
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`https://api.geckoterminal.com/api/v2/networks/xdc/dexes/${selectedOption}/pools`);
+        const response = await fetch(`https://api.geckoterminal.com/api/v2/networks/xdc/dexes/${dex}/pools`);
         const result = await response.json();
         const volume24H = result.data.reduce((sum, entry) => {
           const volume = parseFloat(entry.attributes.volume_usd.h24);
           const totalSum = sum + (isNaN(volume) ? 0 : volume);
-          console.log('totalSum :', totalSum);
+          // console.log('totalSum :', totalSum);
           return totalSum;
         }, 0); // Initialize sum to 0
         setTotalVolume(volume24H);
@@ -28,7 +30,7 @@ const MarketOverview = () => {
         }, 0);
         setActiveUsers(active);
         const totalTransactionValue = result.data.reduce((total, pool) => {
-          console.log(pool);
+          // console.log(pool);
           const buys = pool.attributes.transactions.h24.buys;
           const sells = pool.attributes.transactions.h24.sells;
           return total + buys + sells;
@@ -42,9 +44,11 @@ const MarketOverview = () => {
     };
 
     fetchData();
-  }, [selectedOption]); // Add selectedOption as a dependency
+  }, [dex]); // Add selectedOption as a dependency
 
-
+  const handleDexChange = (event) => {
+    setDex(event.target.value);
+  };
 
   return (
     <div className="bg-gray-900 text-white m-6 rounded-xl shadow-md pt-8">
@@ -52,14 +56,18 @@ const MarketOverview = () => {
       <div className="flex justify-between items-center mx-6 mb-4">
         <h2 className="text-2xl font-bold">Market Overview</h2>
         <div className="relative">
+          <label htmlFor="dex-select">Select DEX: </label>
           <select
+            id="dex-select"
             className="bg-gray-800 text-white p-2 rounded-md"
-            value={selectedOption}
-            onChange={(e) => setSelectedOption(e.target.value)}
+            value={dex}
+            onChange={handleDexChange}
           >
-            <option value="xswap">XSwap</option>
-            <option value="anotherOption">Another Option</option>
-            {/* Add more options here */}
+            {dexesData.map((dexItem) => (
+              <option key={dexItem.id} value={dexItem.id}>
+                {dexItem.attributes.name}
+              </option>
+            ))}
           </select>
         </div>
       </div>

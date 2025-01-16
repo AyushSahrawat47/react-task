@@ -5,11 +5,16 @@ import { useDex } from "../context/dexContext";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { dexes } = useDex();
+  const { dexesData, setDex } = useDex();
+
+  const handleDefi = (dexId) => {
+    setDex(dexId);
+    setIsDropdownOpen(false);
+  };
 
   return (
     <nav className="bg-white border-b shadow-sm" onMouseLeave={() => setIsDropdownOpen(false)}>
-      <div className="container mx-auto flex justify-between items-center px-4 py-3">
+      <div className="container mx-auto flex items-center px-4 py-3">
         {/* Left Section */}
         <div className="flex items-center">
           <img
@@ -21,7 +26,7 @@ const Navbar = () => {
         </div>
 
         {/* Center Section */}
-        <div className="hidden md:flex space-x-6 relative">
+        <div className="hidden md:flex space-x-6 relative ml-56">
           <Link to="/h" className="text-gray-700 hover:text-black">
             Home
           </Link>
@@ -48,14 +53,14 @@ const Navbar = () => {
             </button>
             {isDropdownOpen && (
               <div className="absolute bg-white border border-gray-300 rounded shadow-md mt-2 w-40" onClick={() => setIsDropdownOpen(false)}>
-                {dexes.map((dex) => (
-                  <Link
+                {dexesData.map((dex) => (
+                  <p
                     key={dex.id}
-                    to={`/defi/${dex.id}`}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => handleDefi(dex.id)}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                   >
                     {dex.attributes.name}
-                  </Link>
+                  </p>
                 ))}
               </div>
             )}
@@ -67,18 +72,6 @@ const Navbar = () => {
           <Link to="/developers" className="text-gray-700 hover:text-black">
             Developers
           </Link>
-        </div>
-
-        {/* Right Section */}
-        <div className="flex items-center space-x-4">
-          <button className="text-gray-700 hover:text-black">Sign In</button>
-          <select className="bg-gray-100 text-gray-700 border border-gray-300 rounded px-2 py-1" defaultValue="XSwap">
-            {dexes.map((dex) => (
-              <option key={dex.id} value={dex.attributes.name}>
-                {dex.attributes.name}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
     </nav>

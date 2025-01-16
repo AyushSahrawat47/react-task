@@ -8,13 +8,14 @@ export const useDex = () => {
 };
 
 export const DexProvider = ({ children }) => {
-  const [dexes, setDexes] = useState([]);
+  const [dexesData, setDexesData] = useState([]);
+  const [dex, setDex] = useState("xswap");
 
   const fetchDexes = async () => {
     try {
       const response = await axios.get('https://api.geckoterminal.com/api/v2/networks/xdc/dexes');
-      console.log(response.data.data);
-      setDexes(response.data.data);
+      // console.log(response.data.data);
+      setDexesData(response.data.data);
     } catch (err) {
       console.log({ message: err.message });
     }
@@ -25,7 +26,7 @@ export const DexProvider = ({ children }) => {
   }, []);
 
   return (
-    <DexContext.Provider value={{ dexes }}>
+    <DexContext.Provider value={{ dexesData, dex, setDex }}>
       {children}
     </DexContext.Provider>
   );

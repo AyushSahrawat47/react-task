@@ -1,8 +1,9 @@
-import Footer from "./components/Footer"
-import MarketOverview from "./components/MarketOverview"
 import Table from "./components/Table"
+import MarketOverview from "./components/MarketOverview"
+import Footer from "./components/Footer"
 import Navbar from "./components/Navbar"
 import { DexProvider } from "./context/dexContext"
+// import Defi from "./pages/defi"
 
 function App() {
 
@@ -11,7 +12,7 @@ function App() {
       <DexProvider>
         <Navbar />
         <MarketOverview />
-        <Table />
+        <Table/>
         <Footer />
       </DexProvider>
     </>
