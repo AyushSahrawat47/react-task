@@ -342,6 +342,7 @@ useEffect(() => {
     );
 
     return (
+        <div className="mx-5">
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
                 <EnhancedTableToolbar numSelected={selected.length} />
@@ -432,5 +433,6 @@ useEffect(() => {
                 label="Dense padding"
             />
         </Box>
+        </div>
     );
 }

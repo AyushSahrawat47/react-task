@@ -2,18 +2,18 @@ import Footer from "./components/Footer"
 import MarketOverview from "./components/MarketOverview"
 import Table from "./components/Table"
 import Navbar from "./components/Navbar"
-import { BrowserRouter } from "react-router-dom"
+import { DexProvider } from "./context/dexContext"
 
 function App() {
 
   return (
     <>
-      <BrowserRouter>
+      <DexProvider>
         <Navbar />
         <MarketOverview />
         <Table />
         <Footer />
-      </BrowserRouter>
+      </DexProvider>
     </>
   )
 }
