@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { useDex } from "../context/dexContext";
+import { Line } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const MarketOverview = () => {
   const [data, setData] = useState(null);
-  const [selectedOption, setSelectedOption] = useState("xswap");
   const [totalVolume, setTotalVolume] = useState(null);
   const [totalValueLocked, setTotalValueLocked] = useState(5000);
   const [activeUsers, setActiveUsers] = useState(null);
   const [totalTransactions, setTotalTransactions] = useState(null);
   const { dexesData, dex, setDex } = useDex();
+  const [ohlcvData, setOhlcvData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Fetch data from API
   useEffect(() => {
@@ -19,7 +26,6 @@ const MarketOverview = () => {
         const volume24H = result.data.reduce((sum, entry) => {
           const volume = parseFloat(entry.attributes.volume_usd.h24);
           const totalSum = sum + (isNaN(volume) ? 0 : volume);
-          // console.log('totalSum :', totalSum);
           return totalSum;
         }, 0); // Initialize sum to 0
         setTotalVolume(volume24H);
@@ -30,7 +36,6 @@ const MarketOverview = () => {
         }, 0);
         setActiveUsers(active);
         const totalTransactionValue = result.data.reduce((total, pool) => {
-          // console.log(pool);
           const buys = pool.attributes.transactions.h24.buys;
           const sells = pool.attributes.transactions.h24.sells;
           return total + buys + sells;
@@ -44,10 +49,105 @@ const MarketOverview = () => {
     };
 
     fetchData();
-  }, [dex]); // Add selectedOption as a dependency
+  }, [dex]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://api.geckoterminal.com/api/v2/networks/xdc/pools/0xe5c0d0bc5866bc3638f2374d59b697e4fd48ea94/ohlcv/day");
+        const result = await response.json();
+        setOhlcvData(result.data.attributes.ohlcv_list);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError("Failed to fetch data");
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleDexChange = (event) => {
     setDex(event.target.value);
+  };
+
+  // Prepare Chart.js Data
+  const chartData = {
+    labels: ohlcvData.map((entry) => new Date(entry[0] * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric" })), // Format timestamps as 'MMM DD'
+    datasets: [
+      {
+        label: "Open",
+        data: ohlcvData.map((entry) => entry[1]),
+        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderWidth: 2,
+        tension: 0.4, // Smooth curves
+      },
+      {
+        label: "High",
+        data: ohlcvData.map((entry) => entry[2]),
+        borderColor: "rgba(54, 162, 235, 1)",
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        borderWidth: 2,
+        tension: 0.4,
+      },
+      {
+        label: "Low",
+        data: ohlcvData.map((entry) => entry[3]),
+        borderColor: "rgba(255, 206, 86, 1)",
+        backgroundColor: "rgba(255, 206, 86, 0.2)",
+        borderWidth: 2,
+        tension: 0.4,
+      },
+      {
+        label: "Close",
+        data: ohlcvData.map((entry) => entry[4]),
+        borderColor: "rgba(255, 99, 132, 1)",
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        borderWidth: 2,
+        tension: 0.4,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          color: "#333", // Adjust legend color
+        },
+      },
+      title: {
+        display: true,
+        text: "OHLCV Chart",
+        color: "#333",
+        font: {
+          size: 18,
+          weight: "bold",
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: "#333",
+        },
+        grid: {
+          color: "rgba(200, 200, 200, 0.3)", // Subtle grid color
+        },
+      },
+      y: {
+        ticks: {
+          color: "#333",
+        },
+        grid: {
+          color: "rgba(200, 200, 200, 0.3)",
+        },
+      },
+    },
   };
 
   return (
@@ -98,11 +198,20 @@ const MarketOverview = () => {
         )}
 
         {/* Placeholder for Chart */}
-        <div className="mt-3 bg-gray-100 p-3 w-2/3 rounded-xl text-center h-72 flex justify-center items-center">
-          <p className="text-sm text-gray-600">Chart visualization for TVL will appear here</p>
+        <div className=" text-white m-6 rounded-xl  p-6">
+          {loading ? (
+            <p className="text-center text-gray-300">Loading data...</p>
+          ) : error ? (
+            <p className="text-center text-red-500">{error}</p>
+          ) : (
+            <div className="p-4 rounded-xl bg-white text-gray-900">
+              <div className="h-96 " style={{width:"50rem"}}>
+                <Line data={chartData} options={chartOptions} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
     </div>
   );
 };

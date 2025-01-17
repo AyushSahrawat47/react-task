@@ -1,22 +1,13 @@
-// import React, { useEffect } from 'react'
-// import Table from '../components/Table'
-// import MarketOverview from '../components/MarketOverview'
-// import { useParams } from 'react-router-dom'
-// import { useDex } from '../context/dexContext'
+import Table from '../components/Table'
+import MarketOverview from '../components/MarketOverview'
 
-// const defi = () => {
-//     const { dex } = useParams()
+const Defi = () => {
+    return (
+        <>
+            <MarketOverview />
+            <Table/>
+        </>
+    )
+}
 
-//     useEffect(()=>{
-
-//     },[])
-
-//     return (
-//         <>
-//             <MarketOverview dex={dex} />
-//             <Table  dex ={dex}/>
-//         </>
-//     )
-// }
-
-// export default defi
+export default Defi

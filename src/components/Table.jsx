@@ -13,6 +13,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { useDex } from '../context/dexContext';
+import { Link } from 'react-router-dom';
 
 const headCells = [
     { id: 'pool', label: 'Pool' },
@@ -118,7 +119,7 @@ export default function EnhancedTable() {
                                 const attributes = item.attributes;
                                 return (
                                     <TableRow hover key={item.id}>
-                                        <TableCell>{attributes.name}</TableCell>
+                                        <TableCell ><Link to ={`/pools/${attributes.address}`}>{attributes.name}</Link></TableCell>
                                         <TableCell>{`$${parseFloat(attributes.base_token_price_usd).toFixed(3)}`}</TableCell>
                                         <TableCell>{calculateTotalTransactions(attributes.transactions)}</TableCell>
                                         <TableCell>{`${attributes.price_change_percentage.m5}%`}</TableCell>
